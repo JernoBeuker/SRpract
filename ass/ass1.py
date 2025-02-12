@@ -16,8 +16,10 @@ audio_processor.logging = False
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("KEY")
-STARTING_PROMPT = "You are playing the game of taboo. I have a word in mind and you have to guess it by asking me yes or no questions. Only ask the question, do not explain the game"
+STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will have to guess this word with yes or no questions. Only think of the word and answer the questions with a yes or no, do not explain the game"
+STARTING_PROMPT2 = "You are playing the game of taboo. I have a word in mind and you have to guess it by asking me yes or no questions. Only ask the question, do not explain the game"
 STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop the game, just say the word stop."
+WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 client = genai.Client(api_key=GEMINI_API_KEY)
 chat = client.chats.create(model='gemini-2.0-flash')
 
@@ -70,8 +72,16 @@ def main(session, details):
     if 'no' in word_array:
         TTS(session, text='Okay, I am sad, but bye')
         session.leave()
+        
+    yield TTS(session, WHO_IS_WHAT)
+    word_array = yield STT_continuous(session, start=True)
+    print(word_array)
 
-    llm_response = yield call_gemini_api(STARTING_PROMPT)
+    if 'no' in word_array:
+        TTS(session, text='Okay, I will think of a word now then')
+        llm_response = yield call_gemini_api(STARTING_PROMPT1)
+    else:
+        llm_response = yield call_gemini_api(STARTING_PROMPT2)
     yield TTS(session, llm_response)
 
     while True:
