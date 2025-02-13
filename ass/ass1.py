@@ -10,7 +10,7 @@ from google import genai
 
 audio_processor = SpeechToText()
 audio_processor.silence_time = 1
-audio_processor.silence_threshold2 = 400
+audio_processor.silence_threshold2 = 200
 audio_processor.logging = False
 
 GEMINI_API_KEY = "AIzaSyAKNvPSqM18woLY83IWlYUnf9oDF2R8X_c"
@@ -38,7 +38,7 @@ def call_gemini_api(prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=50, start=False):
+def STT_continuous(session, response_time=15, start=False):
     print("\t\t\t\t\t\t\t\tStarting to listen")
     if start:
         yield session.call("rom.sensor.hearing.sensitivity", 1400)
@@ -95,7 +95,7 @@ def main(session, details):
         print(word_array[-1])
         if word_array[-1] == 'stop':
             break
-        elif word_array[-1]:
+        elif word_array[-1] != None:
             llm_response = yield call_gemini_api(word_array[-1])
             yield TTS(session, llm_response)
         else:
