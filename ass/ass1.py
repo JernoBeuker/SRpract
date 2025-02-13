@@ -4,7 +4,6 @@ from autobahn.twisted.util import sleep
 from alpha_mini_rug.speech_to_text import SpeechToText
 import os
 import requests
-from dotenv import load_dotenv
 from google import genai
 
 # Set up speech-to-text processor
@@ -14,11 +13,17 @@ audio_processor.silence_time = 0.5
 audio_processor.silence_threshold2 = 200
 audio_processor.logging = False
 
-load_dotenv()
-GEMINI_API_KEY = os.getenv("KEY")
-STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will have to guess this word with yes or no questions. Only think of the word and answer the questions with a yes or no, do not explain the game"
-STARTING_PROMPT2 = "You are playing the game of taboo. I have a word in mind and you have to guess it by asking me yes or no questions. Only ask the question, do not explain the game"
-STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop the game, just say the word stop."
+GEMINI_API_KEY = ""
+STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
+    have to guess this word with yes or no questions. Only think of the word \
+    and answer the questions with a yes or no, do not explain the game"
+
+STARTING_PROMPT2 = "You are playing the game of taboo. I have a word in mind and \
+    you have to guess it by asking me yes or no questions. Only ask the question, \
+    do not explain the game"
+STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop the \
+    game, just say the word stop."
+
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 client = genai.Client(api_key=GEMINI_API_KEY)
 chat = client.chats.create(model='gemini-2.0-flash')
@@ -33,7 +38,7 @@ def call_gemini_api(prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=10, start=False):
+def STT_continuous(session, response_time=50, start=False):
     print("\t\t\t\t\t\t\t\tStarting to listen")
     if start:
         yield session.call("rom.sensor.hearing.sensitivity", 1400)
@@ -48,7 +53,7 @@ def STT_continuous(session, response_time=10, start=False):
             yield sleep(0.5)
             print("\t\t\t\tI am listening")
         else:
-            return audio_processor.give_me_words()[-1]
+            return audio_processor.give_me_words()
         audio_processor.loop()
     return None
 
@@ -69,15 +74,15 @@ def main(session, details):
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
 
-    if 'no' in word_array:
-        TTS(session, text='Okay, I am sad, but bye')
+    if 'no' in word_array[-1]:
+        yield TTS(session, text='Okay, I am sad, but bye')
         session.leave()
         
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
 
-    if 'no' in word_array:
+    if 'no' in word_array[-1]:
         TTS(session, text='Okay, I will think of a word now then')
         llm_response = yield call_gemini_api(STARTING_PROMPT1)
     else:
@@ -87,9 +92,10 @@ def main(session, details):
     while True:
         word_array = yield STT_continuous(session)
         print(word_array)
-        if word_array == 'stop':
+
+        if word_array[-1] == 'stop':
             break
-        elif word_array:
+        elif word_array[-1]:
             llm_response = yield call_gemini_api(word_array)
             yield TTS(session, llm_response)
         else:
@@ -99,7 +105,7 @@ def main(session, details):
 
 wamp = Component(
     transports=[{"url": "ws://wamp.robotsindeklas.nl", "serializers": ["msgpack"], "max_retries": 0}],
-    realm="rie.67ab212b85ba37f92bb16124",
+    realm="rie.67adc33985ba37f92bb17021",
 )
 
 wamp.on_join(main)
