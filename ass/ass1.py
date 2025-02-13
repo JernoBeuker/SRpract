@@ -9,11 +9,11 @@ from google import genai
 # Set up speech-to-text processor
 
 audio_processor = SpeechToText()
-audio_processor.silence_time = 0.5
-audio_processor.silence_threshold2 = 200
+audio_processor.silence_time = 1
+audio_processor.silence_threshold2 = 400
 audio_processor.logging = False
 
-GEMINI_API_KEY = ""
+GEMINI_API_KEY = "AIzaSyAKNvPSqM18woLY83IWlYUnf9oDF2R8X_c"
 STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
     have to guess this word with yes or no questions. Only think of the word \
     and answer the questions with a yes or no, do not explain the game"
@@ -73,7 +73,7 @@ def main(session, details):
     yield TTS(session, STARTING_TEXT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
-
+    print(word_array[-1])
     if 'no' in word_array[-1]:
         yield TTS(session, text='Okay, I am sad, but bye')
         session.leave()
@@ -81,7 +81,7 @@ def main(session, details):
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
-
+    print(word_array[-1])
     if 'no' in word_array[-1]:
         TTS(session, text='Okay, I will think of a word now then')
         llm_response = yield call_gemini_api(STARTING_PROMPT1)
@@ -92,11 +92,11 @@ def main(session, details):
     while True:
         word_array = yield STT_continuous(session)
         print(word_array)
-
+        print(word_array[-1])
         if word_array[-1] == 'stop':
             break
         elif word_array[-1]:
-            llm_response = yield call_gemini_api(word_array)
+            llm_response = yield call_gemini_api(word_array[-1])
             yield TTS(session, llm_response)
         else:
             yield TTS(session, "I didn't hear anything. Try the game again.")
