@@ -5,8 +5,8 @@ There is a couple steps to run the code.
 To do this, run the following command in the terminal in the directory you want to clone the repository to: 'git clone https://github.com/JernoBeuker/SRpract'.
 
 ## Making a virtual environment
-The next step is to make a virtual environment with all the libraries listed in the requirements.txt file.\\
-To make a virtual environment using venv, run the following command: 'python -m venv PATH_TO_VENV python=PYTHON_VERSION(optional)'. PATH_TO_VENV and PYTHON_VERSION are placeholders and should be changed (or left out in case of the python version as it is an optional argument).\\
+The next step is to make a virtual environment with all the libraries listed in the requirements.txt file.
+To make a virtual environment using venv, run the following command: 'python -m venv PATH_TO_VENV python=PYTHON_VERSION(optional)'. PATH_TO_VENV and PYTHON_VERSION are placeholders and should be changed (or left out in case of the python version as it is an optional argument).
 To put the requirements in the virtual environment, run the following code: 'pip install -r requirements.txt'
 
 ## Filling in the global variables
