@@ -6,16 +6,14 @@ import os
 import requests
 from google import genai
 
-# Set up speech-to-text processor
+REALM = "rie."          # insert realm key to connect with the robot
+GEMINI_API_KEY = ""     # insert Gemini API key to connect with Gemini
 
-REALM = "rie."
-GEMINI_API_KEY = ""
-
+# set up speech-to-text processor
 audio_processor = SpeechToText()
-audio_processor.silence_time = 1
-audio_processor.silence_threshold2 = 200
+audio_processor.silence_time = 1          # time of allowed silence after speech
+audio_processor.silence_threshold2 = 200  # lower -> robot picks up dimmer sounds
 audio_processor.logging = False
-
 
 STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
     have to guess this word with yes or no questions. Only think of the word \
@@ -28,6 +26,8 @@ STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop t
     game, just say the word stop."
 
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
+
+# setup a chat with GEMINI
 client = genai.Client(api_key=GEMINI_API_KEY)
 chat = client.chats.create(model="gemini-2.0-flash")
 
@@ -44,7 +44,6 @@ def call_gemini_api(prompt):
 
 @inlineCallbacks
 def STT_continuous(session, response_time=15, start=False):
-    print("\t\t\t\t\t\t\t\tStarting to listen")
     if start:
         yield session.call("rom.sensor.hearing.sensitivity", 1400)
         yield session.call("rie.dialogue.config.language", lang="en")
@@ -54,7 +53,8 @@ def STT_continuous(session, response_time=15, start=False):
         )
         yield session.call("rom.sensor.hearing.stream")
 
-    print(start)
+    # By default, the robot waits 5 seconds for a response,
+    # returning None if no response is given
     for _ in range(response_time):
         if not audio_processor.new_words:
             yield sleep(0.5)
@@ -69,42 +69,45 @@ def TTS(session, text):
     yield session.call("rie.dialogue.say", text=text)
 
 
-def make_outputdir():
-    os.makedirs("output", exist_ok=True)
-
-
 @inlineCallbacks
 def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
-    make_outputdir()
 
+    # ask the user to interact
     yield TTS(session, STARTING_TEXT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
     print(word_array[-1])
+
+    # the user does not want to interact
     if "no" in word_array[-1]:
         yield TTS(session, text="Okay, I am sad, but bye")
         session.leave()
 
+    # deciding who will think of a word
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
 
     if "no" in word_array[-1]:
+        # robot thinks of a word
         TTS(session, text="Okay, I will think of a word now then")
         llm_response = yield call_gemini_api(STARTING_PROMPT1)
     else:
+        # robot will guess the word
         llm_response = yield call_gemini_api(STARTING_PROMPT2)
     yield TTS(session, llm_response)
 
     while True:
+        # get the spoken words of the user in an array
         word_array = yield STT_continuous(session)
-        if word_array == None:
-            yield TTS(session, "I didn't hear you, can you say that again.")
-        elif word_array[-1] == "stop":
+
+        if word_array == None:            # could not get words from user
+            yield TTS(session, "I didn't hear you, can you say that again?")
+        elif word_array[-1] == "stop":    # if user decides to stop interacting
             break
-        else:
+        else:                             # respond to the user
             llm_response = yield call_gemini_api(word_array[-1])
             yield TTS(session, llm_response)
 
