@@ -77,7 +77,6 @@ def main(session, details):
     # ask the user to interact
     yield TTS(session, STARTING_TEXT)
     word_array = yield STT_continuous(session, start=True)
-    print(word_array)
     print(word_array[-1])
 
     # the user does not want to interact
@@ -88,7 +87,7 @@ def main(session, details):
     # deciding who will think of a word
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session, start=True)
-    print(word_array)
+    print(word_array[-1])
 
     if "no" in word_array[-1]:
         # robot thinks of a word
@@ -111,7 +110,7 @@ def main(session, details):
             llm_response = yield call_gemini_api(word_array[-1])
             yield TTS(session, llm_response)
 
-        print(word_array)
+        print(word_array[-1])
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
 
