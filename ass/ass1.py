@@ -8,12 +8,15 @@ from google import genai
 
 # Set up speech-to-text processor
 
+REALM = "rie."
+GEMINI_API_KEY = ""
+
 audio_processor = SpeechToText()
 audio_processor.silence_time = 1
 audio_processor.silence_threshold2 = 200
 audio_processor.logging = False
 
-GEMINI_API_KEY = "AIzaSyAKNvPSqM18woLY83IWlYUnf9oDF2R8X_c"
+
 STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
     have to guess this word with yes or no questions. Only think of the word \
     and answer the questions with a yes or no, do not explain the game"
@@ -26,16 +29,18 @@ STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop t
 
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 client = genai.Client(api_key=GEMINI_API_KEY)
-chat = client.chats.create(model='gemini-2.0-flash')
+chat = client.chats.create(model="gemini-2.0-flash")
+
 
 def call_gemini_api(prompt):
     """Calls Google Gemini API with the given prompt and returns the response."""
-    
+
     response = chat.send_message(prompt)
     if response.text:
         return response.text
     else:
         return "Sorry, I encountered an error."
+
 
 @inlineCallbacks
 def STT_continuous(session, response_time=15, start=False):
@@ -43,8 +48,10 @@ def STT_continuous(session, response_time=15, start=False):
     if start:
         yield session.call("rom.sensor.hearing.sensitivity", 1400)
         yield session.call("rie.dialogue.config.language", lang="en")
-        
-        yield session.subscribe(audio_processor.listen_continues, "rom.sensor.hearing.stream")
+
+        yield session.subscribe(
+            audio_processor.listen_continues, "rom.sensor.hearing.stream"
+        )
         yield session.call("rom.sensor.hearing.stream")
 
     print(start)
@@ -57,33 +64,35 @@ def STT_continuous(session, response_time=15, start=False):
         audio_processor.loop()
     return None
 
+
 def TTS(session, text):
     yield session.call("rie.dialogue.say", text=text)
 
+
 def make_outputdir():
     os.makedirs("output", exist_ok=True)
+
 
 @inlineCallbacks
 def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
     make_outputdir()
-    
 
     yield TTS(session, STARTING_TEXT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
     print(word_array[-1])
-    if 'no' in word_array[-1]:
-        yield TTS(session, text='Okay, I am sad, but bye')
+    if "no" in word_array[-1]:
+        yield TTS(session, text="Okay, I am sad, but bye")
         session.leave()
-        
+
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session, start=True)
     print(word_array)
-    print(word_array[-1])
-    if 'no' in word_array[-1]:
-        TTS(session, text='Okay, I will think of a word now then')
+
+    if "no" in word_array[-1]:
+        TTS(session, text="Okay, I will think of a word now then")
         llm_response = yield call_gemini_api(STARTING_PROMPT1)
     else:
         llm_response = yield call_gemini_api(STARTING_PROMPT2)
@@ -91,21 +100,28 @@ def main(session, details):
 
     while True:
         word_array = yield STT_continuous(session)
-        print(word_array)
-        print(word_array[-1])
-        if word_array[-1] == 'stop':
+        if word_array == None:
+            yield TTS(session, "I didn't hear you, can you say that again.")
+        elif word_array[-1] == "stop":
             break
-        elif word_array[-1] != None:
+        else:
             llm_response = yield call_gemini_api(word_array[-1])
             yield TTS(session, llm_response)
-        else:
-            yield TTS(session, "I didn't hear anything. Try the game again.")
-    
+
+        print(word_array)
+    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
 
+
 wamp = Component(
-    transports=[{"url": "ws://wamp.robotsindeklas.nl", "serializers": ["msgpack"], "max_retries": 0}],
-    realm="rie.67adc33985ba37f92bb17021",
+    transports=[
+        {
+            "url": "ws://wamp.robotsindeklas.nl",
+            "serializers": ["msgpack"],
+            "max_retries": 0,
+        }
+    ],
+    realm=REALM,
 )
 
 wamp.on_join(main)
