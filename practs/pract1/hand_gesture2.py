@@ -1,17 +1,29 @@
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from alpha_mini_rug import perform_movement
+from autobahn.twisted.util import sleep
+from gestures import NATURAL_POS, GESTURES
+import random as rd
 
-@inlineCallbacks
-def main(session, details):
+
+def motion(session, frames):
     yield perform_movement(session,
-        frames=[{"time": 400, "data": {"body.arms.right.lower.roll": -1,"body.arms.right.upper.pitch": 0}},
-            {"time": 1200, "data": {"body.arms.right.lower.roll": -1,"body.arms.right.upper.pitch": -2}},
-            {"time": 2000, "data": {"body.arms.right.lower.roll": 0,"body.arms.right.upper.pitch": -2}}],
+        frames=frames,
         mode="linear",
         sync=True, 
         force=False
     )
+    yield sleep(frames[-1]["time"] / 1000)
+
+
+@inlineCallbacks
+def main(session, details):
+    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
+    yield motion(session, NATURAL_POS)
+    for _ in range(10):
+        yield motion(session, rd.choice(GESTURES))
+        yield sleep(1)
+    session.leave()
 
 wamp = Component(
 	transports=[{

@@ -1,4 +1,6 @@
 autobahn
+twisted
 alpha_mini_rug
 google
 pyopenssl
+python-dotenv
