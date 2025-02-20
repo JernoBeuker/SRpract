@@ -2,14 +2,15 @@ from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from alpha_mini_rug import perform_movement
 from autobahn.twisted.util import sleep
-from gestures import NATURAL_POS, GESTURES
+from gestures import NATURAL_POS, GESTURES, CELEBRATE, THINK_DEEPLY
 import random as rd
 
 
+@inlineCallbacks
 def motion(session, frames):
     yield perform_movement(session,
         frames=frames,
-        mode="linear",
+        mode="last",        # experiment with this variable
         sync=True, 
         force=False
     )
@@ -18,11 +19,15 @@ def motion(session, frames):
 
 @inlineCallbacks
 def main(session, details):
-    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
+    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
+    yield sleep(1)
     yield motion(session, NATURAL_POS)
-    for _ in range(10):
-        yield motion(session, rd.choice(GESTURES))
-        yield sleep(1)
+    yield sleep(1)
+    # for _ in range(10):
+    yield motion(session, THINK_DEEPLY)
+    yield sleep(1)
+    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
+    yield sleep(1)
     session.leave()
 
 wamp = Component(
@@ -31,7 +36,7 @@ wamp = Component(
 		"serializers": ["msgpack"],
 		"max_retries": 0
 	}],
-	realm="rie.67b30ccdaa9b77655979f1b5",
+	realm="rie.67b70170a06ea6579d1409f0",
 )
 
 wamp.on_join(main)
