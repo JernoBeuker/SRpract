@@ -1,7 +1,7 @@
 import os
 import requests
 from google import genai
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT
+from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
@@ -10,6 +10,7 @@ from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 from gestures import NATURAL_POS, GESTURES, THINK_DEEPLY, CELEBRATE
 import random as rd
+from count_syllables import  count_syllables
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ audio_processor.logging = False
 # setup a chat with GEMINI
 client = genai.Client(api_key=GEMINI_API_KEY)
 wow_chat = client.chats.create(model="gemini-2.0-flash")
+important_words_chat = client.chats.create(model="gemini-2.0-flash")
 
 @inlineCallbacks
 def motion(session, frames: list):
@@ -34,12 +36,25 @@ def motion(session, frames: list):
         frames=frames,
         mode="linear",
         sync=True, 
-        force=False
+        force=True
     )
     yield sleep(frames[-1]["time"] / 1000)
 
+@inlineCallbacks
 def TTS(session, text):
     """Speaks the given text."""
+    
+    important_words = call_gemini_api(important_words_chat, IMPORTANT_WORDS + text)
+    if 'error' in important_words:
+        yield session.call("rie.dialogue.say", text=important_words)
+        return
+    
+    words = important_words.split()
+    print(words)
+    
+    for word in words:
+        idx = word.find(text)
+    
     yield session.call("rie.dialogue.say", text=text)
 
 def setup_session_STT(session):
@@ -64,11 +79,13 @@ def call_gemini_api(chat, prompt):
 def STT_continuous(session, response_time=15):
     """By default, the robot waits 5 seconds for a response,
     returning None if no response is given"""
+    audio_processor.do_speech_recognition = True
     for _ in range(response_time):
         if not audio_processor.new_words:
             yield sleep(0.5)
             print("\t\t\t\tI am listening")
         else:
+            audio_processor.do_speech_recognition = False
             return audio_processor.give_me_words()
         audio_processor.loop()
     return None
@@ -99,8 +116,11 @@ def asking_user_roles(session):
 @inlineCallbacks
 def main(session, details):
     yield sleep(2)
-    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
+    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
     yield sleep(1)
+
+    
+    
     # yield setup_session_STT()
 
     # # Asks if the user wants to play a game
@@ -124,15 +144,6 @@ def main(session, details):
     #         yield TTS(session, llm_response)
 
     #     print(word_array[-1])
-
-    print(f"Natural: {NATURAL_POS}")
-    yield motion(session, NATURAL_POS)
-    yield sleep(1)
-    print("Celebrate")
-    yield motion(session, CELEBRATE)
-    yield sleep(1)
-    print("Think")
-    yield motion(session, THINK_DEEPLY)
 
     # Leave the session appropriately
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
