@@ -6,6 +6,7 @@ from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
 from alpha_mini_rug.speech_to_text import SpeechToText
+from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 from gestures import NATURAL_POS, GESTURES
 import random as rd
@@ -40,7 +41,7 @@ def TTS(session, text):
     """Speaks the given text."""
     yield session.call("rie.dialogue.say", text=text)
 
-def setup_session_STT():
+def setup_session_STT(session):
     """Making sure the session and the audio processor are set up for speech-to-text."""
     yield session.call("rom.sensor.hearing.sensitivity", 1400)
     yield session.call("rie.dialogue.config.language", lang="en")
@@ -71,7 +72,7 @@ def STT_continuous(session, response_time=15):
         audio_processor.loop()
     return None
 
-def asking_user_play_game():
+def asking_user_play_game(session):
     """Asks if the user wants to interact or not"""
     yield TTS(session, STARTING_TEXT)
     word_array = yield STT_continuous(session)
