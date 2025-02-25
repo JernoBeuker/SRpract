@@ -10,8 +10,9 @@ STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop t
 
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 
-IMPORTANT_WORDS = "Hello,  for the following sentence, I need a robot to make hand gestures. \
-    I want these gestures to match the important words of the sentence, can you \
-    give me the important words of the sentence? The sentence is: "
+IMPORTANT_WORDS = "Hello, for the following text, I need a robot to make hand gestures. \
+I want these gestures to match the most important words of the text (there should only be a couple in a sentence), can you \
+give me the important words in this text? Also only give the important words, \
+no further explenation, and do not put them in bulletpoints. The text is: "
     
 SYLLABLES_TIL_GESTURE = 5

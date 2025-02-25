@@ -14,14 +14,7 @@ from count_syllables import  count_syllables
 
 load_dotenv()
 
-REALM = os.getenv("REALM")
 GEMINI_API_KEY = os.getenv("KEY")
-
-# set up speech-to-text processor
-audio_processor = SpeechToText()
-audio_processor.silence_time = 1  # time of allowed silence after speech
-audio_processor.silence_threshold2 = 200  # lower -> robot picks up dimmer sounds
-audio_processor.logging = False
 
 # setup a chat with GEMINI
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -29,24 +22,12 @@ wow_chat = client.chats.create(model="gemini-2.0-flash")
 important_words_chat = client.chats.create(model="gemini-2.0-flash")
 
 @inlineCallbacks
-def motion(session, frames: list):
-    """Executes the movement with the given frames."""
-    yield perform_movement(
-        session,
-        frames=frames,
-        mode="linear",
-        sync=True, 
-        force=True
-    )
-    yield sleep(frames[-1]["time"] / 1000)
-
-@inlineCallbacks
-def TTS(session, text):
+def TTS(text):
     """Speaks the given text."""
-    
+    print(IMPORTANT_WORDS + text)
     important_words = call_gemini_api(important_words_chat, IMPORTANT_WORDS + text)
     if 'error' in important_words:
-        yield session.call("rie.dialogue.say", text=important_words)
+        print("error")
         return
     
     words = important_words.split()
@@ -55,17 +36,6 @@ def TTS(session, text):
     for word in words:
         idx = word.find(text)
     
-    yield session.call("rie.dialogue.say", text=text)
-
-def setup_session_STT(session):
-    """Making sure the session and the audio processor are set up for speech-to-text."""
-    yield session.call("rom.sensor.hearing.sensitivity", 1400)
-    yield session.call("rie.dialogue.config.language", lang="en")
-
-    yield session.subscribe(
-        audio_processor.listen_continues, "rom.sensor.hearing.stream"
-    )
-    yield session.call("rom.sensor.hearing.stream")
 
 def call_gemini_api(chat, prompt):
     """Calls Google Gemini API with the given prompt and returns the response."""
@@ -76,49 +46,10 @@ def call_gemini_api(chat, prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=15):
-    """By default, the robot waits 5 seconds for a response,
-    returning None if no response is given"""
-    audio_processor.do_speech_recognition = True
-    for _ in range(response_time):
-        if not audio_processor.new_words:
-            yield sleep(0.5)
-            print("\t\t\t\tI am listening")
-        else:
-            audio_processor.do_speech_recognition = False
-            return audio_processor.give_me_words()
-        audio_processor.loop()
-    return None
-
-def asking_user_play_game(session):
-    """Asks if the user wants to interact or not"""
-    yield TTS(session, STARTING_TEXT)
-    word_array = yield STT_continuous(session)
-    print(word_array[-1])
-
-    # the user does not want to interact
-    if "no" in word_array[-1]:
-        yield TTS(session, text="Okay, I am sad, but bye")
-        session.leave()
-
-def asking_user_roles(session):
-    """Asking if the user wants to think of a word or if the robot should think of a word."""
-    yield TTS(session, WHO_IS_WHAT)
-    word_array = yield STT_continuous(session)
-    print(word_array[-1])
-
-    if "no" in word_array[-1]:
-        yield TTS(session, text="Okay, I will think of a word now then")
-        return STARTING_PROMPT1
-    else:
-        return STARTING_PROMPT2
-
-@inlineCallbacks
-def main(session, details):
-    yield sleep(2)
-    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
-    yield sleep(1)
-
+def main():
+    prompt = ("In my younger and more vulnerable years my father gave me some advice that I've been turning over in my mind ever since. Whenever you feel like criticizing any one, he told me, just remember that all the people in this world haven't had the advantages that you've had. ")
+    
+    TTS(prompt)
     
     
     # yield setup_session_STT()
@@ -146,22 +77,6 @@ def main(session, details):
     #     print(word_array[-1])
 
     # Leave the session appropriately
-    yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
-    session.leave()
-
-
-wamp = Component(
-    transports=[
-        {
-            "url": "ws://wamp.robotsindeklas.nl",
-            "serializers": ["msgpack"],
-            "max_retries": 0,
-        }
-    ],
-    realm=REALM,
-)
-
-wamp.on_join(main)
 
 if __name__ == "__main__":
-    run([wamp])
+    main()
