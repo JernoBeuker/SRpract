@@ -8,7 +8,7 @@ from autobahn.twisted.util import sleep
 from alpha_mini_rug.speech_to_text import SpeechToText
 from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
-from gestures import NATURAL_POS, GESTURES
+from gestures import NATURAL_POS, GESTURES, THINK_DEEPLY, CELEBRATE
 import random as rd
 
 load_dotenv()
@@ -26,10 +26,11 @@ audio_processor.logging = False
 client = genai.Client(api_key=GEMINI_API_KEY)
 wow_chat = client.chats.create(model="gemini-2.0-flash")
 
-
+@inlineCallbacks
 def motion(session, frames: list):
     """Executes the movement with the given frames."""
-    yield perform_movement(session,
+    yield perform_movement(
+        session,
         frames=frames,
         mode="linear",
         sync=True, 
@@ -83,7 +84,7 @@ def asking_user_play_game(session):
         yield TTS(session, text="Okay, I am sad, but bye")
         session.leave()
 
-def asking_user_roles():
+def asking_user_roles(session):
     """Asking if the user wants to think of a word or if the robot should think of a word."""
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session)
@@ -95,34 +96,43 @@ def asking_user_roles():
     else:
         return STARTING_PROMPT2
 
-
 @inlineCallbacks
 def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
-    yield setup_session_STT()
+    yield sleep(1)
+    # yield setup_session_STT()
 
-    # Asks if the user wants to play a game
-    yield asking_user_play_game()
+    # # Asks if the user wants to play a game
+    # yield asking_user_play_game()
 
-    # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
-    starting_prompt = yield asking_user_roles()
-    llm_response = yield call_gemini_api(wow_chat, STARTING_PROMPT2)
-    yield TTS(session, llm_response)
+    # # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
+    # starting_prompt = yield asking_user_roles()
+    # llm_response = yield call_gemini_api(wow_chat, starting_prompt)
+    # yield TTS(session, llm_response)
 
-    while True:
-        # get the spoken words of the user in an array
-        word_array = yield STT_continuous(session)
+    # while True:
+    #     # get the spoken words of the user in an array
+    #     word_array = yield STT_continuous(session)
 
-        if word_array == None:  # could not get words from user
-            yield TTS(session, "I didn't hear you, can you say that again?")
-        elif word_array[-1] == "stop":  # if user decides to stop interacting
-            break
-        else:  # respond to the user
-            llm_response = yield call_gemini_api(wow_chat, word_array[-1])
-            yield TTS(session, llm_response)
+    #     if word_array == None:  # could not get words from user
+    #         yield TTS(session, "I didn't hear you, can you say that again?")
+    #     elif word_array[-1] == "stop":  # if user decides to stop interacting
+    #         break
+    #     else:  # respond to the user
+    #         llm_response = yield call_gemini_api(wow_chat, word_array[-1])
+    #         yield TTS(session, llm_response)
 
-        print(word_array[-1])
+    #     print(word_array[-1])
+
+    print(f"Natural: {NATURAL_POS}")
+    yield motion(session, NATURAL_POS)
+    yield sleep(1)
+    print("Celebrate")
+    yield motion(session, CELEBRATE)
+    yield sleep(1)
+    print("Think")
+    yield motion(session, THINK_DEEPLY)
 
     # Leave the session appropriately
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
