@@ -12,6 +12,8 @@ from gestures import NATURAL_POS, GESTURES, THINK_DEEPLY, CELEBRATE
 import random as rd
 from count_syllables import  count_syllables
 
+TIME_PER_SYLLABLE = 0.2
+
 load_dotenv()
 
 REALM = os.getenv("REALM")
@@ -43,19 +45,38 @@ def motion(session, frames: list):
 @inlineCallbacks
 def TTS(session, text):
     """Speaks the given text."""
+    starting_gesture_times = []
+    important_words = call_gemini_api(important_words_chat, IMPORTANT_WORDS + text).split()
+    print(important_words)
+    print(text)
     
-    important_words = call_gemini_api(important_words_chat, IMPORTANT_WORDS + text)
-    if 'error' in important_words:
-        yield session.call("rie.dialogue.say", text=important_words)
-        return
+    idx = 0
+    end_time_gesture = 0
+    for word in important_words:
+        word = word[:len(word)-1]
+        idx = text.find(word, idx)
+        print(idx, word)
+        
+        print(count_syllables(text[:idx]))
+        start_gesture_word = (count_syllables(text[:idx]) * TIME_PER_SYLLABLE) - 1
+        
+        if start_gesture_word > 0 and start_gesture_word > end_time_gesture:
+            starting_gesture_times.append(start_gesture_word)
+            end_time_gesture = start_gesture_word + 1.6
+        
+    session.call("rie.dialogue.say", text=text)
     
-    words = important_words.split()
-    print(words)
+    print("perform gestures")
+    print(starting_gesture_times)
     
-    for word in words:
-        idx = word.find(text)
-    
-    yield session.call("rie.dialogue.say", text=text)
+    time = 0
+    for item in starting_gesture_times:
+        yield sleep(item-time)
+        time = item + 1.6
+        yield motion(session, rd.choice(GESTURES))
+        
+    time_text = count_syllables(text) * TIME_PER_SYLLABLE
+    yield sleep(time_text - (starting_gesture_times[-1] + 1.6))
 
 def setup_session_STT(session):
     """Making sure the session and the audio processor are set up for speech-to-text."""
@@ -118,8 +139,17 @@ def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
     yield sleep(1)
-
     
+    prompt = "The history of human civilization is filled with remarkable achievements, from the development of agriculture to the exploration of space. Over thousands of years, humans have transformed their environment, built towering cities, and developed complex societies. Our ability to innovate and adapt has been a defining trait, allowing us to overcome countless challenges and shape the world in ways previously unimaginable. \
+One of the most significant advancements in human history was the development of agriculture. Before its advent, humans lived as hunter-gatherers, constantly moving in search of food. The discovery of farming allowed people to settle in one place, leading to the growth of permanent settlements and eventually, cities. Agriculture provided a reliable food source, enabling population growth and the division of labor. This, in turn, gave rise to specialized professions, trade, and governance. \
+As civilizations grew, so did their need for communication. The invention of writing systems, such as cuneiform in Mesopotamia and hieroglyphics in Egypt, marked a major turning point. Writing allowed for the recording of laws, religious texts, and commercial transactions, preserving knowledge for future generations. The written word became a powerful tool, shaping politics, culture, and education. \
+Technological advancements continued to shape societies throughout history. The Industrial Revolution of the 18th and 19th centuries brought about unprecedented changes. Mechanized production replaced manual labor, leading to the mass production of goods. This revolution not only improved living standards but also spurred urbanization, as people moved to cities in search of work. Factories and railroads became symbols of progress, connecting people and goods like never before. \
+In the 20th and 21st centuries, the rapid development of digital technology has had an equally profound impact. The invention of computers and the internet revolutionized how people communicate, work, and access information. Social media platforms, artificial intelligence, and automation continue to shape the modern world, creating new opportunities and challenges. \
+Beyond technological advancements, humanity has always sought to understand the mysteries of the universe. From the early astronomical observations of ancient civilizations to modern space exploration, our curiosity has driven us to expand our knowledge. The landing on the moon in 1969 was a milestone in space exploration, demonstrating what humans can achieve with determination and ingenuity. Today, efforts to explore Mars and beyond continue to push the boundaries of science and engineering. \
+Despite these achievements, humanity faces significant challenges. Climate change, resource depletion, and global conflicts threaten progress. Addressing these issues requires cooperation, innovation, and sustainable practices. As history has shown, humans have the capacity to adapt and find solutions. The future will depend on our ability to work together, embracing scientific advancements while ensuring the well-being of future generations. \
+In conclusion, human civilization is a testament to resilience, creativity, and ambition. From ancient farming practices to space travel, our journey has been marked by progress and discovery. As we look forward, our ability to solve problems and push the boundaries of knowledge will continue to define our path. The challenges ahead are daunting, but history teaches us that with determination, humanity can overcome them and continue to thrive."
+    
+    yield TTS(session, prompt[:200])
     
     # yield setup_session_STT()
 
@@ -146,6 +176,7 @@ def main(session, details):
     #     print(word_array[-1])
 
     # Leave the session appropriately
+    yield sleep(1)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
 

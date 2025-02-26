@@ -1,6 +1,7 @@
 autobahn
 twisted
 alpha_mini_rug
-google
+google.genai
 pyopenssl
 python-dotenv
+requests
