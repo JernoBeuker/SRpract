@@ -10,7 +10,7 @@ from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 from gestures import NATURAL_POS, GESTURES, THINK_DEEPLY, CELEBRATE
 import random as rd
-from count_syllables import  count_syllables
+from count_syllables import count_syllables
 
 TIME_PER_SYLLABLE = 0.2
 
