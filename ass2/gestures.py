@@ -122,7 +122,7 @@ CELEBRATE = [
             {"time": 5600, "data": LH_NATURAL | RH_NATURAL | {"body.torso.yaw": 0}}
             ]
 
-THINK_DEEPLY = [
+EUREKA = [
             {"time": 0, "data": RH_NATURAL | HEAD_NATURAL},
             {"time": 1000, "data": {"body.head.roll": 0.2,
                                     "body.head.yaw": -0.5,
@@ -154,12 +154,17 @@ THINK_DEEPLY = [
                                     "body.head.pitch": 0.4,
                                     "body.arms.right.lower.roll": -1.7,
                                     "body.arms.right.upper.pitch": -1.3}},
-            {"time": 4400, "data": {"body.head.roll": 0.2,
-                                    "body.head.yaw": -0.5,
-                                    "body.head.pitch": 0.4,
-                                    "body.arms.right.lower.roll": -0.6,
-                                    "body.arms.right.upper.pitch": -1.3}},
-            {"time": 5200, "data": RH_NATURAL | HEAD_NATURAL}
+            {"time": 4400, "data": {"body.head.roll": 0.0,
+                                    "body.head.yaw": 0.0,
+                                    "body.head.pitch": -0.3,
+                                    "body.arms.right.lower.roll": -0.5,
+                                    "body.arms.right.upper.pitch": -2}},
+            {"time": 5000, "data": {"body.head.roll": 0.0,
+                                    "body.head.yaw": 0.0,
+                                    "body.head.pitch": -0.3,
+                                    "body.arms.right.lower.roll": -0.5,
+                                    "body.arms.right.upper.pitch": -2}},
+            {"time": 5600, "data": RH_NATURAL | HEAD_NATURAL}
             ]
 
 GESTURES = [
