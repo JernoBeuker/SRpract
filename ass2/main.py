@@ -52,7 +52,7 @@ def TTS(session, text):
     session.call("rie.dialogue.say", text=text)
 
     time = 0
-    while time < duration:
+    while time < duration-1.6:
         sleep_time = random_gesture_syllable(min=2, max=8)
         time += sleep_time + 1.6
         yield sleep(sleep_time)
@@ -139,8 +139,8 @@ def main(session, details):
             break
         else:  # respond to the user
             llm_response = yield call_gemini_api(wow_chat, word_array[-1])
-            
-            if rd.randint(0,10) < 1:
+
+            if rd.randint(0,10) < 3:
                 yield motion(session, EUREKA)
                 yield session.call("rie.dialogue.say", text=llm_response)
             else:
