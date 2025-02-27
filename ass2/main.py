@@ -14,6 +14,7 @@ from count_syllables import count_syllables
 from sample_gesture_time import random_gesture_syllable
 
 TIME_PER_SYLLABLE = 0.2
+GESTURE_TIME = 1.6
 
 load_dotenv()
 
@@ -45,17 +46,27 @@ def motion(session, frames: list):
 @inlineCallbacks
 def TTS(session, text):
     """Speaks the given text."""
-    print(text)
+    # calculate how long it will take to speak the text
     duration = count_syllables(text) * TIME_PER_SYLLABLE
-    print(duration)
 
     session.call("rie.dialogue.say", text=text)
 
     time = 0
-    while time < duration-1.6:
+
+    # while there is time to do a gesture
+    while time < duration - GESTURE_TIME:
+
+        # get a time after which we will do a gesture
         sleep_time = random_gesture_syllable(min=2, max=8)
-        time += sleep_time + 1.6
+
+        # update the "current time" by how long we will wait plus how long
+        # the gesture will be
+        time += sleep_time + GESTURE_TIME
+
+        # wait to do the gesture
         yield sleep(sleep_time)
+
+        # do a random gesture from the list of beat-gestures
         yield motion(session, rd.choice(GESTURES))
 
 def setup_session_STT(session):
