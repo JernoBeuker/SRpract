@@ -10,7 +10,7 @@ To make a virtual environment using venv, run the following command: 'python -m 
 To put the requirements in the virtual environment, run the following code: 'pip install -r requirements.txt'
 
 ## Filling in the global variables
-For the program to run, it is imperative to fill in the global variables in the ass/ass1.py file. The two variables that need to be filled in is the 'REALM' variable, which is the realm that connects the program to the robot. The other global variable that should be filled in is the 'GEMINI_API_KEY', which is a key to access the Gemini API, which is needed for the robot to engage in conversation.
+For the program to run, it is imperative to make a .env file with the following global variables: 'KEY' and 'REALM'. The realm variable makes the realm that connects the program to the robot. The key is an access key to the Gemini API, which is needed for the robot to engage in conversation.
 
 ## Runing the code
-To run the code, go to the main folder 'SRpract', and type in the command: 'python3 ass/ass1.py'
+To run the code for assignment 2, go to the main folder 'SRpract', switch to the branch assignment2, and type in the command: 'python3 ass2/main.py'
