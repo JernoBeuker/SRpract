@@ -1,17 +1,15 @@
 import os
 import requests
 from google import genai
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE
+from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
 from alpha_mini_rug.speech_to_text import SpeechToText
 from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
-from gestures import NATURAL_POS, GESTURES, EUREKA, CELEBRATE
 import random as rd
-from count_syllables import count_syllables
-from sample_gesture_time import random_gesture_syllable
+from utils import count_syllables, random_gesture_syllable
 
 TIME_PER_SYLLABLE = 0.2
 GESTURE_TIME = 1.6

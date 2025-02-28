@@ -1,6 +1,10 @@
 import string
+import random as rd
+
+from config import TIME_PER_SYLLABLE
 
 def count_syllables(text: str) -> int:
+    """This function gets a string and outputs the number of syllables in the given text."""
     count = 0
     vowels = "aeiouy"
     vowel_pairs = ["ea", "io", "ou", "oa", "ie", "ue", "ay", "ey", "iy", "uy", "oy"]
@@ -33,5 +37,15 @@ def count_syllables(text: str) -> int:
         # a word cannot be 0 syllables
         if count == 0:
             count += 1
-
     return count
+
+def random_gesture_syllable(min: int=3, max: int=10) -> float:
+    """Selects a random number of syllables to wait for the next beat gesture 
+    and calculates how much time it takes to say those beat gestures.
+    It takes two arguments: min and max, which are inclusive boundries and default to 3 and 10 respectively."""
+    # select a random syllable from [min, max], where min is the first syllable
+    # after the last gesture that we can select
+    rand_syllable = rd.randint(min, max)
+
+    # convert n'th syllable to time in seconds
+    return rand_syllable * TIME_PER_SYLLABLE
