@@ -166,7 +166,6 @@ def main(session, details):
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
 
-
 wamp = Component(
     transports=[
         {
