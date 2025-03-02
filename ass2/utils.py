@@ -7,6 +7,7 @@ def count_syllables(text: str) -> int:
     """This function gets a string and outputs the number of syllables in the given text."""
     count = 0
     vowels = "aeiouy"
+    # vowel pairs that count towards 1 syllable
     vowel_pairs = ["ea", "io", "ou", "oa", "ie", "ue", "ay", "ey", "iy", "uy", "oy"]
 
     # remove all punctuation
@@ -21,13 +22,13 @@ def count_syllables(text: str) -> int:
         # start from the second letter in the word, so we can always check
         # the previous letter
         for idx in range(1, len(word)):
-            # increase number of syllables for each set of vowels 
-            # (e.g. 'a' or 'oa')
+            # if we encounter the second vowel in a vowel pair counting for 1
+            # syllable, we do not count it
             if word[idx - 1 : idx + 1] in vowel_pairs:
-                count += 1
-                break
+                continue
 
-            if word[idx] in vowels and word[idx - 1] not in vowels:
+            # increase syllable count in every other case
+            elif word[idx] in vowels:
                 count += 1
 
         # cases where vowels don't count towards a syllable
@@ -37,6 +38,7 @@ def count_syllables(text: str) -> int:
         # a word cannot be 0 syllables
         if count == 0:
             count += 1
+
     return count
 
 def random_gesture_syllable(min: int=3, max: int=10) -> float:
