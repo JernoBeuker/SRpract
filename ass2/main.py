@@ -118,10 +118,10 @@ def asking_user_roles(session):
         return STARTING_PROMPT2
     
 def play_taboo(session):
-    # Asks if the user wants to play a game
+    # asks if the user wants to play a game
     yield asking_user_play_game(session)
 
-    # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
+    # asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
     starting_prompt = yield asking_user_roles(session)
     llm_response = yield call_gemini_api(wow_chat, starting_prompt)
     yield TTS(session, llm_response)
@@ -163,7 +163,7 @@ def main(session, details):
 
     play_taboo(session)
 
-    # Leave the session appropriately
+    # leave the session appropriately
     yield sleep(1)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
