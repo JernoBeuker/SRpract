@@ -19,10 +19,11 @@ IMPORTANT_WORDS = "Hello, for the following sentence, I need a robot to make han
     give me the important words of the sentence? Do only a couple a sentence \
     Only answer with the keywords, do not put them in bulletpoints. The sentence is: "
     
-SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 
 # --------------------------------------------Gestures------------------------------------------
+
+GESTURE_TIME = 1.6
 
 LH_NATURAL = {"body.arms.left.lower.roll": -0.6,"body.arms.left.upper.pitch": -0.1}
 RH_NATURAL = {"body.arms.right.lower.roll": -0.6,"body.arms.right.upper.pitch": -0.1}

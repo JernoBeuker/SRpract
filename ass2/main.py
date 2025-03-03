@@ -1,7 +1,6 @@
 import os
-import requests
 from google import genai
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE
+from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GESTURE_TIME, TIME_PER_SYLLABLE
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
@@ -10,9 +9,6 @@ from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 import random as rd
 from utils import count_syllables, random_gesture_syllable
-
-TIME_PER_SYLLABLE = 0.2
-GESTURE_TIME = 1.6
 
 load_dotenv()
 
@@ -86,14 +82,14 @@ def call_gemini_api(chat, prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=15):
+def STT_continuous(session, response_time=10):
     """By default, the robot waits 5 seconds for a response,
     returning None if no response is given"""
     audio_processor.do_speech_recognition = True
     for _ in range(response_time):
         if not audio_processor.new_words:
             yield sleep(0.5)
-            print("\t\t\t\tI am listening")
+            # print("\t\t\t\tI am listening")
         else:
             audio_processor.do_speech_recognition = False
             return audio_processor.give_me_words()
@@ -120,16 +116,8 @@ def asking_user_roles(session):
         return STARTING_PROMPT1
     else:
         return STARTING_PROMPT2
-
-@inlineCallbacks
-def main(session, details):
-    yield sleep(2)
-    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
-    yield motion(session, NATURAL_POS)
-    yield sleep(1)
     
-    yield setup_session_STT(session)
-
+def play_taboo(session):
     # Asks if the user wants to play a game
     yield asking_user_play_game(session)
 
@@ -144,22 +132,36 @@ def main(session, details):
 
         if word_array == None:  # could not get words from user
             yield TTS(session, "I didn't hear you, can you say that again?")
+
         elif word_array[-1] == "stop":  # if user decides to stop interacting
             break
+
         else:  # respond to the user
             llm_response = yield call_gemini_api(wow_chat, word_array[-1])
 
-            if rd.randint(0,10) < 3:
+             # 30% chance of performing the "eurka" iconic move
+            if rd.randint(0, 10) < 3:
                 yield motion(session, EUREKA)
                 yield session.call("rie.dialogue.say", text=llm_response)
             else:
                 yield TTS(session, llm_response)
 
-            #Ending the game
+            # ending the game
             if "celebrate" in llm_response:
                 yield motion(session, CELEBRATE)
                 yield sleep(2)
                 break
+
+@inlineCallbacks
+def main(session, details):
+    yield sleep(2)
+    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
+    yield motion(session, NATURAL_POS)
+    yield sleep(1)
+    
+    yield setup_session_STT(session)
+
+    play_taboo(session)
 
     # Leave the session appropriately
     yield sleep(1)
