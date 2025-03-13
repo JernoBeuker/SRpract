@@ -22,6 +22,21 @@ IMPORTANT_WORDS = "Hello, for the following sentence, I need a robot to make han
 SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 
+GETTING_USER_NAME = "I will be glad to play a game with you. What is your name?"
+    
+SYLLABLES_TIL_GESTURE = 5
+TIME_PER_SYLLABLE = 0.2
+
+STANDARD_PLAYER = {
+    "name": "",
+    "stats": {
+        "games_played": 0,
+        "success_rate": 0,
+        "knowledge_state": 0.5,
+        "Difficulty_level": "Medium"
+    }
+}
+
 # --------------------------------------------Gestures------------------------------------------
 
 LH_NATURAL = {"body.arms.left.lower.roll": -0.6,"body.arms.left.upper.pitch": -0.1}

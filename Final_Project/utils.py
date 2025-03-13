@@ -1,7 +1,19 @@
 import string
 import random as rd
+import json
 
 from config import TIME_PER_SYLLABLE
+
+FILENAME = "Users.json"
+
+
+def save_dict(tasks: dict, filename=FILENAME):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(tasks, f, indent=4, ensure_ascii=False)
+
+def load_dict(filename=FILENAME):
+    with open(filename, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def count_syllables(text: str) -> int:
     """This function gets a string and outputs the number of syllables in the given text."""

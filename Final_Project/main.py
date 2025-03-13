@@ -1,7 +1,7 @@
 import os
 import requests
 from google import genai
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE
+from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
@@ -9,7 +9,7 @@ from alpha_mini_rug.speech_to_text import SpeechToText
 from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 import random as rd
-from utils import count_syllables, random_gesture_syllable
+from utils import count_syllables, random_gesture_syllable, save_dict, load_dict
 
 TIME_PER_SYLLABLE = 0.2
 GESTURE_TIME = 1.6
@@ -122,6 +122,25 @@ def asking_user_roles(session):
         return STARTING_PROMPT2
 
 @inlineCallbacks
+def get_stats_player(session):
+    players_dict = load_dict()
+    
+    yield TTS(session, GETTING_USER_NAME)
+    name = yield STT_continuous(session)
+    
+    if name in players_dict:
+        return players_dict[name]
+    else:
+        player =  STANDARD_PLAYER
+        player["name"] = name
+        return player
+
+def save_player_progress(player_stats):
+    players_dict = load_dict()
+    players_dict[player_stats["name"]] = player_stats
+    save_dict(players_dict)
+
+@inlineCallbacks
 def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
@@ -132,6 +151,8 @@ def main(session, details):
 
     # Asks if the user wants to play a game
     yield asking_user_play_game(session)
+    
+    player_stats = yield get_stats_player(session)
 
     # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
     starting_prompt = yield asking_user_roles(session)
@@ -162,6 +183,7 @@ def main(session, details):
                 break
 
     # Leave the session appropriately
+    save_player_progress(player_stats)
     yield sleep(1)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
