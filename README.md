@@ -14,3 +14,8 @@ For the program to run, it is imperative to make a .env file with the following 
 
 ## Runing the code
 To run the code for assignment 2, go to the main folder 'SRpract', switch to the branch final_project (type in: 'git checkout final_project'), and type in the command: 'python3 Final_Project/main.py'
+
+## further improvements
+    - consider multiple meanings of words (choose the appropriate one given level)
+    - consider abstraction of the word (word can be easy, but abstract and therefore    hard to guess e.g. a color)
+    - option to give up by the user
