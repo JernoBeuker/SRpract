@@ -61,3 +61,20 @@ def random_gesture_syllable(min: int=3, max: int=10) -> float:
 
     # convert n'th syllable to time in seconds
     return rand_syllable * TIME_PER_SYLLABLE
+
+def filter_nouns(input_file: str, output_file: str):
+    """filters the nouns of a given vocabulary file (input_file) and puts them
+    in a new file. The output file (output_file) must exist (empty) beforehand"""
+
+    with open("words/allNouns.txt", 'r') as file:
+        nouns = [word.strip() for word in file]
+
+    with open(input_file, 'r') as level:
+        words = [line.strip() for line in level]
+
+    good_nouns = [word for word in words if word in nouns]
+
+    with open(output_file, 'a') as end_file:
+        for noun in good_nouns:
+            end_file.write(noun)
+            end_file.write('\n')

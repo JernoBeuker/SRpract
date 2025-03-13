@@ -1,5 +1,4 @@
 import os
-import requests
 from google import genai
 from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER
 from autobahn.twisted.component import Component, run
@@ -131,7 +130,7 @@ def get_stats_player(session):
     if name in players_dict:
         return players_dict[name]
     else:
-        player =  STANDARD_PLAYER
+        player = STANDARD_PLAYER
         player["name"] = name
         return player
 
