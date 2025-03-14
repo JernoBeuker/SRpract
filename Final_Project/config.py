@@ -3,7 +3,8 @@ import random as rd
 LEVEL = ""
 WORDS = ""
 
-STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
+STARTING_PROMPT1 = f"You are playing the game of taboo. Pick the easiest word \
+    in the following list for you to keep in mind: {WORDS}. I will \
     have to guess this word with yes or no questions. Only think of the word \
     and answer the questions with a yes or no, do not explain the game. Once \
     I guessed the word, say: you guessed it, lets celebrate!"

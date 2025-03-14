@@ -1,5 +1,6 @@
 import os
 from google import genai
+import config
 from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, \
     SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER, \
     CEFR_LEVELS, KNOWLEDGE_TO_LEVEL, NAME_FROM_STRING
@@ -118,12 +119,23 @@ def asking_user_roles(session, player_stats: dict):
 
     if "no" in word_array[-1]:
         yield TTS(session, text="Okay, I will think of a word now then")
-        player_stats['stats']['knowledge_state']
-        STARTING_PROMPT1
+        
+        for key, value in KNOWLEDGE_TO_LEVEL.items():
+            if player_stats['stats']['knowledge_state'] in key:
+
+                with open(f"words/{value}.txt", 'r') as file:
+                    level_words = [word.strip() for word in file]
+                
+                random_words_level = rd.sample(level_words, 5)
+                config.WORDS = random_words_level
+                
+                return config.STARTING_PROMPT1
     
     else:
-        
-        STARTING_PROMPT2
+        for key, value in KNOWLEDGE_TO_LEVEL.items():
+            if player_stats['stats']['knowledge_state'] in key:
+                config.LEVEL = value
+                return config.STARTING_PROMPT2
         
 
 @inlineCallbacks
