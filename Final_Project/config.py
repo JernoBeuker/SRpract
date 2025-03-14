@@ -50,7 +50,7 @@ STANDARD_PLAYER = {
     "name": "",
     "stats": {
         "games_played": 0,
-        "success_rate": 0,
+        "games_won": 0,
         "knowledge_state": 30
     }
 }
