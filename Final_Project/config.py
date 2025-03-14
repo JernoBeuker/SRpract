@@ -27,13 +27,22 @@ GETTING_USER_NAME = "I will be glad to play a game with you. What is your name?"
 SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 
+CEFR_LEVELS = ("a1", "a2", "b1", "b2", "c1")
+
+KNOWLEDGE_TO_LEVEL = {
+    0: CEFR_LEVELS[0],
+    0.2: CEFR_LEVELS[1],
+    0.4: CEFR_LEVELS[2],
+    0.6: CEFR_LEVELS[3],
+    0.8: CEFR_LEVELS[4]
+}
+
 STANDARD_PLAYER = {
     "name": "",
     "stats": {
         "games_played": 0,
         "success_rate": 0,
-        "knowledge_state": 0.5,
-        "Difficulty_level": "Medium"
+        "knowledge_state": 0.5
     }
 }
 
