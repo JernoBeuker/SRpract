@@ -17,5 +17,8 @@ To run the code for assignment 2, go to the main folder 'SRpract', switch to the
 
 ## further improvements
     - consider multiple meanings of words (choose the appropriate one given level)
-    - consider abstraction of the word (word can be easy, but abstract and therefore    hard to guess e.g. a color)
+    - consider abstraction of the word (word can be easy, but abstract and therefore  hard to guess e.g. a color)
     - option to give up by the user
+    - give weights to the two types of gameplay (letting the robot guess is easier)
+
+    - check if gemini explains words, if we ask it
