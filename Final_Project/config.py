@@ -1,12 +1,16 @@
 import random as rd
 
+LEVEL = ""
+WORDS = ""
+
 STARTING_PROMPT1 = "You are playing the game of taboo. Think of a word. I will \
     have to guess this word with yes or no questions. Only think of the word \
     and answer the questions with a yes or no, do not explain the game. Once \
     I guessed the word, say: you guessed it, lets celebrate!"
 
-STARTING_PROMPT2 = "You are playing the game of taboo. I have a word in mind and \
-    you have to guess it by asking me yes or no questions. Only ask the question, \
+STARTING_PROMPT2 = f"You are playing the game of taboo. I have a word in mind and \
+    you have to guess it by asking me yes or no questions. Keep in mind that my level of proficiency is {LEVEL} in English \
+    so base your questions on that. Only ask the question, \
     do not explain the game. Once I told you that you guessed the word, say: Lets celebrate!"
 
 STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop the \
@@ -18,7 +22,9 @@ IMPORTANT_WORDS = "Hello, for the following sentence, I need a robot to make han
     I want these gestures to match the important words of the sentence, can you \
     give me the important words of the sentence? Do only a couple a sentence \
     Only answer with the keywords, do not put them in bulletpoints. The sentence is: "
-    
+
+NAME_FROM_STRING = "Can you find the name in the following text, only respond with the name: "
+
 SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 
@@ -30,11 +36,11 @@ TIME_PER_SYLLABLE = 0.2
 CEFR_LEVELS = ("a1", "a2", "b1", "b2", "c1")
 
 KNOWLEDGE_TO_LEVEL = {
-    0: CEFR_LEVELS[0],
-    0.2: CEFR_LEVELS[1],
-    0.4: CEFR_LEVELS[2],
-    0.6: CEFR_LEVELS[3],
-    0.8: CEFR_LEVELS[4]
+    tuple(range(0, 20)): CEFR_LEVELS[0],
+    tuple(range(20, 40)): CEFR_LEVELS[1],
+    tuple(range(40, 60)): CEFR_LEVELS[2],
+    tuple(range(60, 80)): CEFR_LEVELS[3],
+    tuple(range(80, 100)): CEFR_LEVELS[4]
 }
 
 STANDARD_PLAYER = {
@@ -42,7 +48,7 @@ STANDARD_PLAYER = {
     "stats": {
         "games_played": 0,
         "success_rate": 0,
-        "knowledge_state": 0.5
+        "knowledge_state": 30
     }
 }
 

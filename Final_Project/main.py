@@ -1,6 +1,8 @@
 import os
 from google import genai
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER
+from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, \
+    SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER, \
+    CEFR_LEVELS, KNOWLEDGE_TO_LEVEL, NAME_FROM_STRING
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
@@ -109,23 +111,28 @@ def asking_user_play_game(session):
         yield TTS(session, text="Okay, I am sad, but bye")
         session.leave()
 
-def asking_user_roles(session):
+def asking_user_roles(session, player_stats: dict):
     """Asking if the user wants to think of a word or if the robot should think of a word."""
     yield TTS(session, WHO_IS_WHAT)
     word_array = yield STT_continuous(session)
 
     if "no" in word_array[-1]:
         yield TTS(session, text="Okay, I will think of a word now then")
-        return STARTING_PROMPT1
+        player_stats['stats']['knowledge_state']
+        STARTING_PROMPT1
+    
     else:
-        return STARTING_PROMPT2
+        
+        STARTING_PROMPT2
+        
 
 @inlineCallbacks
 def get_stats_player(session):
     players_dict = load_dict()
     
     yield TTS(session, GETTING_USER_NAME)
-    name = yield STT_continuous(session)
+    response = yield STT_continuous(session)
+    name = yield call_gemini_api(wow_chat, NAME_FROM_STRING + response)
     
     if name in players_dict:
         return players_dict[name]
@@ -154,7 +161,7 @@ def main(session, details):
     player_stats = yield get_stats_player(session)
 
     # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
-    starting_prompt = yield asking_user_roles(session)
+    starting_prompt = yield asking_user_roles(session, player_stats)
     llm_response = yield call_gemini_api(wow_chat, starting_prompt)
     yield TTS(session, llm_response)
 
