@@ -1,21 +1,22 @@
 import random as rd
 
-LEVEL = ""
-WORDS = ""
+level = ""
+words = []
 
 STARTING_PROMPT1 = f"You are playing the game of taboo. Pick the easiest word \
-    in the following list for you to keep in mind: {WORDS}. I will \
+    in the following list for you to keep in mind: {words}. I will \
     have to guess this word with yes or no questions. Only think of the word \
     and answer the questions with a yes or no, do not explain the game. Once \
     I guessed the word, say: you guessed it, lets celebrate!"
 
 STARTING_PROMPT2 = f"You are playing the game of taboo. I have a word in mind and \
-    you have to guess it by asking me yes or no questions. Keep in mind that my level of proficiency is {LEVEL} in English \
-    so base your questions on that. Only ask the question, \
-    do not explain the game. Once I told you that you guessed the word, say: Lets celebrate!"
+    you have to guess it by asking me yes or no questions. Keep in mind that my level \
+    of proficiency is {level} in English so base your questions on that. Only ask the \
+    question, do not explain the game. Once I told you that you guessed the word, say: \
+    Lets celebrate!"
 
-STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to stop the \
-    game, just say the word stop."
+STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to give up and \
+                stop the game, just say the word stop."
 
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 
@@ -30,7 +31,8 @@ SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 
 GETTING_USER_NAME = "I will be glad to play a game with you. What is your name?"
-    
+
+GESTURE_TIME = 1.6
 SYLLABLES_TIL_GESTURE = 5
 TIME_PER_SYLLABLE = 0.2
 

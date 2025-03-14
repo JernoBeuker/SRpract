@@ -1,9 +1,6 @@
 import os
 from google import genai
-import config
-from config import STARTING_PROMPT1, STARTING_PROMPT2, STARTING_TEXT, WHO_IS_WHAT, IMPORTANT_WORDS, \
-    SYLLABLES_TIL_GESTURE, NATURAL_POS, GESTURES, EUREKA, CELEBRATE, GETTING_USER_NAME, STANDARD_PLAYER, \
-    CEFR_LEVELS, KNOWLEDGE_TO_LEVEL, NAME_FROM_STRING
+import config as cf
 from autobahn.twisted.component import Component, run
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.util import sleep
@@ -12,9 +9,6 @@ from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 import random as rd
 from utils import count_syllables, random_gesture_syllable, save_dict, load_dict
-
-TIME_PER_SYLLABLE = 0.2
-GESTURE_TIME = 1.6
 
 load_dotenv()
 
@@ -47,32 +41,32 @@ def motion(session, frames: list):
 def TTS(session, text):
     """Speaks the given text."""
     # calculate how long it will take to speak the text
-    duration = count_syllables(text) * TIME_PER_SYLLABLE
+    duration = count_syllables(text) * cf.TIME_PER_SYLLABLE
 
     session.call("rie.dialogue.say", text=text)
 
     time = 0
 
     # while there is time to do a gesture
-    while time < duration - GESTURE_TIME:
+    while time < duration - cf.GESTURE_TIME:
 
         # get a time after which we will do a gesture
         sleep_time = random_gesture_syllable(min=2, max=8)
 
         # update the "current time" by how long we will wait plus how long
         # the gesture will be
-        time += sleep_time + GESTURE_TIME
+        time += sleep_time + cf.GESTURE_TIME
 
         # wait to do the gesture
         yield sleep(sleep_time)
 
         # do a random gesture from the list of beat-gestures
-        yield motion(session, rd.choice(GESTURES))
+        yield motion(session, rd.choice(cf.GESTURES))
 
 def setup_session_STT(session):
     """Making sure the session and the audio processor are set up for speech-to-text."""
     yield session.call("rom.sensor.hearing.sensitivity", 1400)
-    yield session.call("rie.dialogue.config.language", lang="en")
+    yield session.call("rie.dialogue.cf.language", lang="en")
 
     yield session.subscribe(
         audio_processor.listen_continues, "rom.sensor.hearing.stream"
@@ -104,7 +98,7 @@ def STT_continuous(session, response_time=15):
 
 def asking_user_play_game(session):
     """Asks if the user wants to interact or not"""
-    yield TTS(session, STARTING_TEXT)
+    yield TTS(session, cf.STARTING_TEXT)
     word_array = yield STT_continuous(session)
 
     # the user does not want to interact
@@ -114,42 +108,42 @@ def asking_user_play_game(session):
 
 def asking_user_roles(session, player_stats: dict):
     """Asking if the user wants to think of a word or if the robot should think of a word."""
-    yield TTS(session, WHO_IS_WHAT)
+    yield TTS(session, cf.WHO_IS_WHAT)
     word_array = yield STT_continuous(session)
 
     if "no" in word_array[-1]:
         yield TTS(session, text="Okay, I will think of a word now then")
         
-        for key, value in KNOWLEDGE_TO_LEVEL.items():
+        for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
             if player_stats['stats']['knowledge_state'] in key:
 
-                with open(f"words/{value}.txt", 'r') as file:
-                    level_words = [word.strip() for word in file]
+                with open(f"words/{cefr_level}.txt", 'r') as wordlist_file:
+                    cefr_words = [word.strip() for word in wordlist_file]
                 
-                random_words_level = rd.sample(level_words, 5)
-                config.WORDS = random_words_level
-                
-                return config.STARTING_PROMPT1
+                random_words = rd.sample(cefr_words, 5)
+                cf.words = random_words
+
+                return cf.STARTING_PROMPT1
     
     else:
-        for key, value in KNOWLEDGE_TO_LEVEL.items():
+        for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
             if player_stats['stats']['knowledge_state'] in key:
-                config.LEVEL = value
-                return config.STARTING_PROMPT2
-        
+                cf.level = cefr_level
+                return cf.STARTING_PROMPT2
+
 
 @inlineCallbacks
 def get_stats_player(session):
     players_dict = load_dict()
-    
-    yield TTS(session, GETTING_USER_NAME)
+
+    yield TTS(session, cf.GETTING_USER_NAME)
     response = yield STT_continuous(session)
-    name = yield call_gemini_api(wow_chat, NAME_FROM_STRING + response)
-    
+    name = yield call_gemini_api(wow_chat, cf.NAME_FROM_STRING + response)
+
     if name in players_dict:
         return players_dict[name]
     else:
-        player = STANDARD_PLAYER
+        player = cf.STANDARD_PLAYER
         player["name"] = name
         return player
 
@@ -162,7 +156,7 @@ def save_player_progress(player_stats):
 def main(session, details):
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
-    yield motion(session, NATURAL_POS)
+    yield motion(session, cf.NATURAL_POS)
     yield sleep(1)
     
     yield setup_session_STT(session)
@@ -189,14 +183,14 @@ def main(session, details):
             llm_response = yield call_gemini_api(wow_chat, word_array[-1])
 
             if rd.randint(0,10) < 3:
-                yield motion(session, EUREKA)
+                yield motion(session, cf.EUREKA)
                 yield session.call("rie.dialogue.say", text=llm_response)
             else:
                 yield TTS(session, llm_response)
 
             #Ending the game
             if "celebrate" in llm_response:
-                yield motion(session, CELEBRATE)
+                yield motion(session, cf.CELEBRATE)
                 yield sleep(2)
                 break
 
