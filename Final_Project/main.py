@@ -147,7 +147,16 @@ def get_stats_player(session):
         player["name"] = name
         return player
 
-def save_player_progress(player_stats):
+def calculate_BKT():
+    pass
+
+def save_player_progress(player_stats:dict, game_state:dict):
+    player_stats["stats"]["games_played"] += 1
+    if game_state["winner"] == "user":
+        player_stats["stats"]["games_won"] += 1
+    
+    # calculate BKT()
+    
     players_dict = load_dict()
     players_dict[player_stats["name"]] = player_stats
     save_dict(players_dict)
@@ -171,6 +180,10 @@ def main(session, details):
     llm_response = yield call_gemini_api(wow_chat, starting_prompt)
     yield TTS(session, llm_response)
 
+
+    game_state = {
+        'winner': None
+    }
     while True:
         # get the spoken words of the user in an array
         word_array = yield STT_continuous(session)
@@ -178,6 +191,7 @@ def main(session, details):
         if word_array == None:  # could not get words from user
             yield TTS(session, "I didn't hear you, can you say that again?")
         elif word_array[-1] == "stop":  # if user decides to stop interacting
+            game_state['winner'] = "bot"
             break
         else:  # respond to the user
             llm_response = yield call_gemini_api(wow_chat, word_array[-1])
@@ -190,12 +204,13 @@ def main(session, details):
 
             #Ending the game
             if "celebrate" in llm_response:
+                game_state['winner'] = "user"
                 yield motion(session, cf.CELEBRATE)
                 yield sleep(2)
                 break
 
     # Leave the session appropriately
-    save_player_progress(player_stats)
+    save_player_progress(player_stats, game_state)
     yield sleep(1)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
     session.leave()
