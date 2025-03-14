@@ -204,10 +204,7 @@ def main(session, details):
 
             #Ending the game
             if "celebrate" in llm_response:
-                if "guessed" in llm_response:
-                    game_state['winner'] = "user"
-                else:
-                    game_state['winner'] = "bot"
+                game_state['winner'] = "user"
                 yield motion(session, cf.CELEBRATE)
                 yield sleep(2)
                 break
