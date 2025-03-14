@@ -113,18 +113,18 @@ def asking_user_roles(session, player_stats: dict):
 
     if "no" in word_array[-1]:
         yield TTS(session, text="Okay, I will think of a word now then")
-        
+
         for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
             if player_stats['stats']['knowledge_state'] in key:
 
                 with open(f"words/{cefr_level}.txt", 'r') as wordlist_file:
                     cefr_words = [word.strip() for word in wordlist_file]
-                
+
                 random_words = rd.sample(cefr_words, 5)
                 cf.words = random_words
 
                 return cf.STARTING_PROMPT1
-    
+
     else:
         for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
             if player_stats['stats']['knowledge_state'] in key:
@@ -158,12 +158,12 @@ def main(session, details):
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
     yield motion(session, cf.NATURAL_POS)
     yield sleep(1)
-    
+
     yield setup_session_STT(session)
 
     # Asks if the user wants to play a game
     yield asking_user_play_game(session)
-    
+
     player_stats = yield get_stats_player(session)
 
     # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
