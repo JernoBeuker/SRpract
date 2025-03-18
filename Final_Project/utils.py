@@ -4,8 +4,7 @@ import json
 
 from config import TIME_PER_SYLLABLE
 
-FILENAME = "Users.json"
-
+FILENAME = "./Final_Project/users.json"
 
 def save_dict(tasks: dict, filename=FILENAME):
     with open(filename, 'w', encoding='utf-8') as f:

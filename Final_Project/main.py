@@ -12,7 +12,7 @@ from utils import count_syllables, random_gesture_syllable, save_dict, load_dict
 
 load_dotenv()
 
-REALM = os.getenv("REALM")
+REALM = 'rie.' + os.getenv("REALM")
 GEMINI_API_KEY = os.getenv("KEY")
 
 # set up speech-to-text processor
@@ -24,6 +24,7 @@ audio_processor.logging = False
 # setup a chat with GEMINI
 client = genai.Client(api_key=GEMINI_API_KEY)
 wow_chat = client.chats.create(model="gemini-2.0-flash")
+#name_chat = client.chats.create(model="gemini-2.0-flash")
 
 @inlineCallbacks
 def motion(session, frames: list):
@@ -63,10 +64,11 @@ def TTS(session, text):
         # do a random gesture from the list of beat-gestures
         yield motion(session, rd.choice(cf.GESTURES))
 
+@inlineCallbacks
 def setup_session_STT(session):
     """Making sure the session and the audio processor are set up for speech-to-text."""
     yield session.call("rom.sensor.hearing.sensitivity", 1400)
-    yield session.call("rie.dialogue.cf.language", lang="en")
+    yield session.call("rie.dialogue.config.language", lang="en")
 
     yield session.subscribe(
         audio_processor.listen_continues, "rom.sensor.hearing.stream"
@@ -92,26 +94,33 @@ def STT_continuous(session, response_time=15):
             print("\t\t\t\tI am listening")
         else:
             audio_processor.do_speech_recognition = False
-            return audio_processor.give_me_words()
+            print(audio_processor.give_me_words())
+            return audio_processor.give_me_words()[-1][0]
         audio_processor.loop()
     return None
 
+@inlineCallbacks
 def asking_user_play_game(session):
     """Asks if the user wants to interact or not"""
     yield TTS(session, cf.STARTING_TEXT)
     word_array = yield STT_continuous(session)
+    while word_array == None:
+        yield TTS(session, "I didn't hear you, can you say that again?")
+        word_array = yield STT_continuous(session)
 
     # the user does not want to interact
-    if "no" in word_array[-1]:
+    if "no" in word_array:
+        yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
         yield TTS(session, text="Okay, I am sad, but bye")
         session.leave()
 
+@inlineCallbacks
 def asking_user_roles(session, player_stats: dict):
     """Asking if the user wants to think of a word or if the robot should think of a word."""
     yield TTS(session, cf.WHO_IS_WHAT)
     word_array = yield STT_continuous(session)
 
-    if "no" in word_array[-1]:
+    if "no" in word_array:
         yield TTS(session, text="Okay, I will think of a word now then")
 
         for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
@@ -138,7 +147,8 @@ def get_stats_player(session):
 
     yield TTS(session, cf.GETTING_USER_NAME)
     response = yield STT_continuous(session)
-    name = yield call_gemini_api(wow_chat, cf.NAME_FROM_STRING + response)
+    response = cf.NAME_FROM_STRING + response
+    name = yield call_gemini_api(wow_chat, response.strip())
 
     if name in players_dict:
         return players_dict[name]
@@ -160,7 +170,6 @@ def calculate_BKT(player, gamestate, p_T_win=0.1, p_T_loss=0.02):
 
     # Convert back to 0-100 scale
     player["stats"]["knowledge_state"] = round(new_p_L * 100, 2)
-    
     return player
 
 def save_player_progress(player_stats:dict, game_state:dict):
@@ -174,6 +183,7 @@ def save_player_progress(player_stats:dict, game_state:dict):
     players_dict[player_stats["name"]] = player_stats
     save_dict(players_dict)
 
+@inlineCallbacks
 def game_setup(session):
     """setting up the wow game before we enter the gameplay loop"""
 
@@ -190,18 +200,19 @@ def game_setup(session):
 
     return player_stats
 
+@inlineCallbacks
 def game_loop(session, game_state):
-    while game_state['winner'] != None:
+    while True:
         # get the spoken words of the user in an array
         word_array = yield STT_continuous(session)
 
         if word_array == None:  # could not get words from user
             yield TTS(session, "I didn't hear you, can you say that again?")
-        elif word_array[-1] == "stop":  # if user decides to stop interacting
+        elif word_array == "stop":  # if user decides to stop interacting
             game_state['winner'] = "bot"
-            return game_state
+            break
         else:  # respond to the user
-            llm_response = yield call_gemini_api(wow_chat, word_array[-1])
+            llm_response = yield call_gemini_api(wow_chat, word_array)
 
             if rd.randint(0,10) < 3:
                 yield motion(session, cf.EUREKA)
@@ -214,26 +225,31 @@ def game_loop(session, game_state):
                 game_state['winner'] = "user"
                 yield motion(session, cf.CELEBRATE)
                 yield sleep(2)
-                return game_state
+                break
+    return game_state
 
 
 @inlineCallbacks
 def main(session, details):
+    # Initialize the session
     yield sleep(2)
     yield session.call("rom.optional.behavior.play", name="BlocklyStand")
+    yield sleep(2)
     yield motion(session, cf.NATURAL_POS)
     yield sleep(1)
-
+    
+    # Determine what variant of the game to play and setup player
+    print("Setting up the game...")
     yield setup_session_STT(session)
-    player_stats = game_setup(session)
+    player_stats = yield game_setup(session)
+    
+    # Perform the main game loop
+    print("Entering the main loop...")
+    game_state = {'winner': None}
+    game_state = yield game_loop(session, game_state)
 
-    game_state = {
-        'winner': None
-    }
-
-    game_state = game_loop(session, game_state)
-
-    # Leave the session appropriately
+    # Leave the session
+    print("Leaving the session...")
     save_player_progress(player_stats, game_state)
     yield sleep(1)
     yield session.call("rom.optional.behavior.play", name="BlocklyCrouch")
