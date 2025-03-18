@@ -147,15 +147,28 @@ def get_stats_player(session):
         player["name"] = name
         return player
 
-def calculate_BKT():
-    pass
+def calculate_BKT(player, gamestate, p_T_win=0.1, p_T_loss=0.02):
+    p_L = player["stats"]["knowledge_state"] / 100.0  
+
+    # Determine probability transition based on game outcome
+    p_T = p_T_win
+    if gamestate["winner"] == "bot":
+        p_T = p_T_loss  # Lower learning probability on failure
+
+    # Compute updated knowledge state using BKT formula
+    new_p_L = p_L + (1 - p_L) * p_T
+
+    # Convert back to 0-100 scale
+    player["stats"]["knowledge_state"] = round(new_p_L * 100, 2)
+    
+    return player
 
 def save_player_progress(player_stats:dict, game_state:dict):
     player_stats["stats"]["games_played"] += 1
     if game_state["winner"] == "user":
         player_stats["stats"]["games_won"] += 1
     
-    # calculate BKT()
+    player_stats = calculate_BKT(player_stats, game_state)
     
     players_dict = load_dict()
     players_dict[player_stats["name"]] = player_stats
