@@ -161,30 +161,24 @@ def save_player_progress(player_stats:dict, game_state:dict):
     players_dict[player_stats["name"]] = player_stats
     save_dict(players_dict)
 
-@inlineCallbacks
-def main(session, details):
-    yield sleep(2)
-    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
-    yield motion(session, cf.NATURAL_POS)
-    yield sleep(1)
-
-    yield setup_session_STT(session)
+def game_setup(session):
+    """setting up the wow game before we enter the gameplay loop"""
 
     # Asks if the user wants to play a game
     yield asking_user_play_game(session)
 
     player_stats = yield get_stats_player(session)
 
-    # Asks the user if they want to think of a word or if the robot should think of a word, and returns the starting prompt for gemini
+    # Asks the user if they want to think of a word or if the robot should
+    # think of a word, and returns the starting prompt for gemini
     starting_prompt = yield asking_user_roles(session, player_stats)
     llm_response = yield call_gemini_api(wow_chat, starting_prompt)
     yield TTS(session, llm_response)
 
+    return player_stats
 
-    game_state = {
-        'winner': None
-    }
-    while True:
+def game_loop(session, game_state):
+    while game_state['winner'] != None:
         # get the spoken words of the user in an array
         word_array = yield STT_continuous(session)
 
@@ -192,7 +186,7 @@ def main(session, details):
             yield TTS(session, "I didn't hear you, can you say that again?")
         elif word_array[-1] == "stop":  # if user decides to stop interacting
             game_state['winner'] = "bot"
-            break
+            return game_state
         else:  # respond to the user
             llm_response = yield call_gemini_api(wow_chat, word_array[-1])
 
@@ -207,7 +201,24 @@ def main(session, details):
                 game_state['winner'] = "user"
                 yield motion(session, cf.CELEBRATE)
                 yield sleep(2)
-                break
+                return game_state
+
+
+@inlineCallbacks
+def main(session, details):
+    yield sleep(2)
+    yield session.call("rom.optional.behavior.play", name="BlocklyStand")
+    yield motion(session, cf.NATURAL_POS)
+    yield sleep(1)
+
+    yield setup_session_STT(session)
+    player_stats = game_setup(session)
+
+    game_state = {
+        'winner': None
+    }
+
+    game_state = game_loop(session, game_state)
 
     # Leave the session appropriately
     save_player_progress(player_stats, game_state)
