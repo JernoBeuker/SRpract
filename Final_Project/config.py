@@ -1,20 +1,4 @@
-import numpy.random as rd
 import numpy as np
-
-level = ""
-words = []
-
-STARTING_PROMPT1 = f"You are playing the game of taboo. Pick the easiest word \
-    in the following list for you to keep in mind: {words}. I will \
-    have to guess this word with yes or no questions. Only think of the word \
-    and answer the questions with a yes or no, do not explain the game. Once \
-    I guessed the word, say: you guessed it, lets celebrate!"
-
-STARTING_PROMPT2 = f"You are playing the game of taboo. I have a word in mind and \
-    you have to guess it by asking me yes or no questions. Keep in mind that my level \
-    of proficiency is {level} in English so base your questions on that. Only ask the \
-    question, do not explain the game. Once I told you that you guessed the word, say: \
-    Lets celebrate!"
 
 STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to give up and \
                 stop the game, just say the word stop."
@@ -56,6 +40,8 @@ STANDARD_PLAYER = {
     }
 }
 
+FILENAME = "./users.json"
+
 # --------------------------------------------Gestures------------------------------------------
 
 LH_NATURAL = {"body.arms.left.lower.roll": -0.6,"body.arms.left.upper.pitch": -0.1}
@@ -64,30 +50,30 @@ HEAD_NATURAL = {"body.head.roll": 0.0, "body.head.pitch": 0.0, "body.head.yaw": 
 
 FRAMES_RH_GESTURE = [
             {"time": 400, "data": RH_NATURAL},
-            {"time": 1000, "data": {"body.arms.right.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-0.9, -0,7), 2)}},
+            {"time": 1000, "data": {"body.arms.right.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": RH_NATURAL}
             ]
 
 FRAMES_LH_GESTURE = [
         	{"time": 400, "data": LH_NATURAL},
-            {"time": 1000, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+            {"time": 1000, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": LH_NATURAL}
             ]
 
 FRAMES_LH_RH_GESTURE = [
         	{"time": 400, "data": LH_NATURAL | RH_NATURAL},
-            {"time": 1000, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+            {"time": 1000, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": LH_NATURAL | RH_NATURAL}
             ]
 
 FRAMES_HEAD_L_GESTURE = [
             {"time": 400, "data": HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(-0.3, -0.1), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(-0.3, -0.1), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0}},
             {"time": 1600, "data": HEAD_NATURAL}
@@ -95,7 +81,7 @@ FRAMES_HEAD_L_GESTURE = [
 
 FRAMES_HEAD_R_GESTURE = [
             {"time": 400, "data": HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0}},
             {"time": 1600, "data": HEAD_NATURAL}
@@ -103,127 +89,127 @@ FRAMES_HEAD_R_GESTURE = [
 
 FRAMES_LEFT_HEAD_GESTURE = [
             {"time": 400, "data": LH_NATURAL | HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(-0.3, -0.1), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(-0.3, -0.1), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0,
-                                    "body.arms.left.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+                                    "body.arms.left.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": LH_NATURAL | HEAD_NATURAL}
             ]
 
 FRAMES_RIGHT_HEAD_GESTURE = [
             {"time": 400, "data": RH_NATURAL | HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0,
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": RH_NATURAL | HEAD_NATURAL}
             ]
 
 FRAMES_LEFT_HEAD_GESTURE2 = [
             {"time": 400, "data": LH_NATURAL | HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0,
-                                    "body.arms.left.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+                                    "body.arms.left.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": LH_NATURAL | HEAD_NATURAL}
             ]
 
 FRAMES_RIGHT_HEAD_GESTURE2 = [
             {"time": 400, "data": RH_NATURAL | HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(-0.3, -0.1), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(-0.3, -0.1), 2),
                                     "body.head.yaw": 0.0,
                                     "body.head.pitch": 0.0,
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.6, -1.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-0.9, -0.7), 2)}},
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.6, -1.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-0.9, -0.7), 2)}},
             {"time": 1600, "data": RH_NATURAL | HEAD_NATURAL}
             ]
 
 # Iconic gestures
 CELEBRATE = [
         	{"time": 0, "data": LH_NATURAL | RH_NATURAL | {"body.torso.yaw": 0}},
-            {"time": 1000, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2),
-                                    "body.torso.yaw": np.round(rd.uniform(-0.5, -0.3), 2)}},
-            {"time": 1600, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2),
-                                    "body.torso.yaw": np.round(rd.uniform(-0.9, -0.7), 2)}},
-            {"time": 2200, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2),
-                                    "body.torso.yaw": np.round(rd.uniform(-0.5, -0.3), 2)}},
-            {"time": 2800, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2),
+            {"time": 1000, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2),
+                                    "body.torso.yaw": round(np.random.uniform(-0.5, -0.3), 2)}},
+            {"time": 1600, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2),
+                                    "body.torso.yaw": round(np.random.uniform(-0.9, -0.7), 2)}},
+            {"time": 2200, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2),
+                                    "body.torso.yaw": round(np.random.uniform(-0.5, -0.3), 2)}},
+            {"time": 2800, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2),
                                     "body.torso.yaw": 0}},
-            {"time": 3400, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2),
-                                    "body.torso.yaw": np.round(rd.uniform(0.3, 0.5), 2)}},
-            {"time": 4000, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.1, -0.9), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2),
+            {"time": 3400, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2),
+                                    "body.torso.yaw": round(np.random.uniform(0.3, 0.5), 2)}},
+            {"time": 4000, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.1, -0.9), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2),
                                     "body.torso.yaw": 0.8}},
-            {"time": 4600, "data": {"body.arms.left.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.left.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2), 
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.3, -0.1), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-3.6, -3.4), 2),
-                                    "body.torso.yaw": np.round(rd.uniform(0.3, 0.5), 2)}},
+            {"time": 4600, "data": {"body.arms.left.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.left.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2), 
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.3, -0.1), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-3.6, -3.4), 2),
+                                    "body.torso.yaw": round(np.random.uniform(0.3, 0.5), 2)}},
             {"time": 5600, "data": LH_NATURAL | RH_NATURAL | {"body.torso.yaw": 0}}
             ]
 
 EUREKA = [
             {"time": 0, "data": RH_NATURAL | HEAD_NATURAL},
-            {"time": 1000, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
+            {"time": 1000, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
                                     "body.arms.right.lower.roll": -1.4,
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
-            {"time": 1400, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.8, -1.6), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
-            {"time": 2000, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
+            {"time": 1400, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.8, -1.6), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
+            {"time": 2000, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
                                     "body.arms.right.lower.roll": -1.4,
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
-            {"time": 2600, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.8, -1.6), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
-            {"time": 3200, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
+            {"time": 2600, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.8, -1.6), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
+            {"time": 3200, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
                                     "body.arms.right.lower.roll": -1.4,
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
-            {"time": 3800, "data": {"body.head.roll": np.round(rd.uniform(0.1, 0.3), 2),
-                                    "body.head.yaw": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.head.pitch": np.round(rd.uniform(0.3, 0.5), 2),
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-1.8, -1.6), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-1.4, -1.2), 2)}},
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
+            {"time": 3800, "data": {"body.head.roll": round(np.random.uniform(0.1, 0.3), 2),
+                                    "body.head.yaw": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.head.pitch": round(np.random.uniform(0.3, 0.5), 2),
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-1.8, -1.6), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-1.4, -1.2), 2)}},
             {"time": 4400, "data": {"body.head.roll": 0.0,
                                     "body.head.yaw": 0.0,
-                                    "body.head.pitch": np.round(rd.uniform(-0.4, -0.2), 2),
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2)}},
+                                    "body.head.pitch": round(np.random.uniform(-0.4, -0.2), 2),
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2)}},
             {"time": 5000, "data": {"body.head.roll": 0.0,
                                     "body.head.yaw": 0.0,
-                                    "body.head.pitch": np.round(rd.uniform(-0.4, -0.2), 2),
-                                    "body.arms.right.lower.roll": np.round(rd.uniform(-0.6, -0.4), 2),
-                                    "body.arms.right.upper.pitch": np.round(rd.uniform(-2.1, -1.9), 2)}},
+                                    "body.head.pitch": round(np.random.uniform(-0.4, -0.2), 2),
+                                    "body.arms.right.lower.roll": round(np.random.uniform(-0.6, -0.4), 2),
+                                    "body.arms.right.upper.pitch": round(np.random.uniform(-2.1, -1.9), 2)}},
             {"time": 5600, "data": RH_NATURAL | HEAD_NATURAL}
             ]
 

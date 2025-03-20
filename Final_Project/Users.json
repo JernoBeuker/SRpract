@@ -1,1 +1,26 @@
-{}
+{
+    "John\n": {
+        "name": "John\n",
+        "stats": {
+            "games_played": 3,
+            "games_won": 3,
+            "knowledge_state": 48.97
+        }
+    },
+    "Elton\n": {
+        "name": "Elton\n",
+        "stats": {
+            "games_played": 1,
+            "games_won": 1,
+            "knowledge_state": 37.0
+        }
+    },
+    "Elthorne\n": {
+        "name": "Elthorne\n",
+        "stats": {
+            "games_played": 1,
+            "games_won": 1,
+            "knowledge_state": 37.0
+        }
+    }
+}

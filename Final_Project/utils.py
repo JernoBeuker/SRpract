@@ -2,9 +2,7 @@ import string
 import random as rd
 import json
 
-from config import TIME_PER_SYLLABLE
-
-FILENAME = "./Final_Project/users.json"
+from config import TIME_PER_SYLLABLE, FILENAME
 
 def save_dict(tasks: dict, filename=FILENAME):
     with open(filename, 'w', encoding='utf-8') as f:
@@ -77,3 +75,17 @@ def filter_nouns(input_file: str, output_file: str):
         for noun in good_nouns:
             end_file.write(noun)
             end_file.write('\n')
+
+def starting_prompt1(words:list) -> str:
+    return f"You are playing the game of taboo. Pick the easiest word \
+    in the following list for you to keep in mind: {words}. I will \
+    have to guess this word with yes or no questions. Only think of the word \
+    and answer the questions with a yes or no, do not explain the game. Once \
+    I guessed the word, say: you guessed it, lets celebrate!"
+
+def starting_prompt2(level:str) -> str:
+    return f"You are playing the game of taboo. I have a word in mind and \
+    you have to guess it by asking me yes or no questions. Keep in mind that my level \
+    of proficiency is {level} in English so base your questions on that. Only ask the \
+    question, do not explain the game. Once I told you that you guessed the word, say: \
+    Lets celebrate!"

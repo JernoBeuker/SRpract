@@ -8,7 +8,7 @@ from alpha_mini_rug.speech_to_text import SpeechToText
 from alpha_mini_rug import perform_movement
 from dotenv import load_dotenv
 import random as rd
-from utils import count_syllables, random_gesture_syllable, save_dict, load_dict
+from utils import count_syllables, random_gesture_syllable, save_dict, load_dict, starting_prompt1, starting_prompt2
 
 load_dotenv()
 
@@ -84,7 +84,7 @@ def call_gemini_api(chat, prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=15):
+def STT_continuous(session, response_time=20):
     """By default, the robot waits 5 seconds for a response,
     returning None if no response is given"""
     audio_processor.do_speech_recognition = True
@@ -94,7 +94,7 @@ def STT_continuous(session, response_time=15):
             print("\t\t\t\tI am listening")
         else:
             audio_processor.do_speech_recognition = False
-            print(audio_processor.give_me_words())
+            print(audio_processor.give_me_words()[-1])
             return audio_processor.give_me_words()[-1][0]
         audio_processor.loop()
     return None
@@ -104,7 +104,7 @@ def asking_user_play_game(session):
     """Asks if the user wants to interact or not"""
     yield TTS(session, cf.STARTING_TEXT)
     word_array = yield STT_continuous(session)
-    while word_array == None:
+    while not word_array:
         yield TTS(session, "I didn't hear you, can you say that again?")
         word_array = yield STT_continuous(session)
 
@@ -124,22 +124,21 @@ def asking_user_roles(session, player_stats: dict):
         yield TTS(session, text="Okay, I will think of a word now then")
 
         for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
-            if player_stats['stats']['knowledge_state'] in key:
+            if round(player_stats['stats']['knowledge_state']) in key:
 
                 with open(f"words/{cefr_level}.txt", 'r') as wordlist_file:
                     cefr_words = [word.strip() for word in wordlist_file]
-
                 random_words = rd.sample(cefr_words, 5)
-                cf.words = random_words
-
-                return cf.STARTING_PROMPT1
-
+                
+                print(cefr_level)
+                print(starting_prompt1(random_words))
+                return starting_prompt1(random_words)
     else:
         for key, cefr_level in cf.KNOWLEDGE_TO_LEVEL.items():
-            if player_stats['stats']['knowledge_state'] in key:
-                cf.level = cefr_level
-                return cf.STARTING_PROMPT2
-
+            if round(player_stats['stats']['knowledge_state']) in key:
+                print(cefr_level)
+                print(starting_prompt2(cefr_level))
+                return starting_prompt2(cefr_level)
 
 @inlineCallbacks
 def get_stats_player(session):
@@ -147,6 +146,9 @@ def get_stats_player(session):
 
     yield TTS(session, cf.GETTING_USER_NAME)
     response = yield STT_continuous(session)
+    while not response:
+        yield TTS(session, "I didn't hear you, can you say that again?")
+        response = yield STT_continuous(session)
     response = cf.NAME_FROM_STRING + response
     name = yield call_gemini_api(wow_chat, response.strip())
 

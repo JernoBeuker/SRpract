@@ -13,7 +13,7 @@ To put the requirements in the virtual environment, run the following code: 'pip
 For the program to run, it is imperative to make a .env file with the following global variables: 'KEY' and 'REALM'. The realm variable makes the realm that connects the program to the robot. The key is an access key to the Gemini API, which is needed for the robot to engage in conversation.
 
 ## Runing the code
-To run the code for assignment 2, go to the main folder 'SRpract', switch to the branch final_project (type in: 'git checkout final_project'), and type in the command: 'python3 Final_Project/main.py'
+To run the code for assignment 2, go to the main folder 'SRpract', switch to the branch final_project (type in: 'git checkout final_project'), go to the final project folder (cd Final_Project), and type in the command: 'python3 main.py'
 
 ## further improvements
     - consider multiple meanings of words (choose the appropriate one given level)
