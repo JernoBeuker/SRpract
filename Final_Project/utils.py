@@ -77,15 +77,16 @@ def filter_nouns(input_file: str, output_file: str):
             end_file.write('\n')
 
 def starting_prompt1(words:list) -> str:
-    return f"You are playing the game of taboo. Pick the easiest word \
-    in the following list for you to keep in mind: {words}. I will \
-    have to guess this word with yes or no questions. Only think of the word \
-    and answer the questions with a yes or no, do not explain the game. Once \
-    I guessed the word, say: you guessed it, lets celebrate!"
+    return f"You are playing the game of taboo. Pick the simpelest noun in the following \
+    list: {words} to keep in mind, dont say which one. I will \
+    have to guess this word with yes or no questions. Do not explain the game. \
+    Once I guessed the word, say: you guessed it, lets celebrate! \
+    If I give up, say: okay we will stop. After you say what the word was."
+    
 
 def starting_prompt2(level:str) -> str:
     return f"You are playing the game of taboo. I have a word in mind and \
     you have to guess it by asking me yes or no questions. Keep in mind that my level \
     of proficiency is {level} in English so base your questions on that. Only ask the \
     question, do not explain the game. Once I told you that you guessed the word, say: \
-    Lets celebrate!"
+    Lets celebrate! If I want to give up or stop, say: okay we will stop."

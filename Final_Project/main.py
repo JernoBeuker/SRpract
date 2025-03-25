@@ -42,6 +42,7 @@ def motion(session, frames: list):
 def TTS(session, text):
     """Speaks the given text."""
     # calculate how long it will take to speak the text
+    print(f'Robot says: {text}')
     duration = count_syllables(text) * cf.TIME_PER_SYLLABLE
 
     session.call("rie.dialogue.say", text=text)
@@ -84,13 +85,13 @@ def call_gemini_api(chat, prompt):
         return "Sorry, I encountered an error."
 
 @inlineCallbacks
-def STT_continuous(session, response_time=20):
+def STT_continuous(session, response_time=10):
     """By default, the robot waits 5 seconds for a response,
     returning None if no response is given"""
     audio_processor.do_speech_recognition = True
     for _ in range(response_time):
         if not audio_processor.new_words:
-            yield sleep(0.5)
+            yield sleep(1)
             print("\t\t\t\tI am listening")
         else:
             audio_processor.do_speech_recognition = False
@@ -159,7 +160,7 @@ def get_stats_player(session):
         player["name"] = name
         return player
 
-def calculate_BKT(player, gamestate, p_T_win=0.1, p_T_loss=0.02):
+def calculate_BKT(player, gamestate, p_T_win=0.1, p_T_loss=-0.05):
     p_L = player["stats"]["knowledge_state"] / 100.0  
 
     # Determine probability transition based on game outcome
@@ -169,6 +170,11 @@ def calculate_BKT(player, gamestate, p_T_win=0.1, p_T_loss=0.02):
 
     # Compute updated knowledge state using BKT formula
     new_p_L = p_L + (1 - p_L) * p_T
+    
+    if new_p_L < 0:
+        new_p_L = 0
+    elif new_p_L > 1:
+        new_p_L = 1
 
     # Convert back to 0-100 scale
     player["stats"]["knowledge_state"] = round(new_p_L * 100, 2)
@@ -210,9 +216,6 @@ def game_loop(session, game_state):
 
         if word_array == None:  # could not get words from user
             yield TTS(session, "I didn't hear you, can you say that again?")
-        elif word_array == "stop":  # if user decides to stop interacting
-            game_state['winner'] = "bot"
-            break
         else:  # respond to the user
             llm_response = yield call_gemini_api(wow_chat, word_array)
 
@@ -226,6 +229,10 @@ def game_loop(session, game_state):
             if "celebrate" in llm_response:
                 game_state['winner'] = "user"
                 yield motion(session, cf.CELEBRATE)
+                yield sleep(2)
+                break
+            elif "stop" in llm_response:
+                game_state['winner'] = "bot"
                 yield sleep(2)
                 break
     return game_state

@@ -1,7 +1,6 @@
 import numpy as np
 
-STARTING_TEXT = "Do you want to play a game of Taboo? If you ever want to give up and \
-                stop the game, just say the word stop."
+STARTING_TEXT = "Do you want to play a game of Taboo?"
 
 WHO_IS_WHAT = "Do you want to start with thinking of a word?"
 
