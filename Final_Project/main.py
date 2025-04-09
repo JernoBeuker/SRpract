@@ -155,6 +155,7 @@ def asking_user_roles(session, player_stats: dict):
 
 @inlineCallbacks
 def get_stats_player(session):
+    """Asks the players name and returns their stats from the json file"""
     players_dict = load_dict()
 
     # asking user for their name
@@ -182,6 +183,7 @@ def get_stats_player(session):
 
 def calculate_BKT(player: dict, gamestate: dict, 
                   p_T_win: float=0.1, p_T_loss: float=-0.05) -> dict:
+    """Calculates the probability of the user knowing the word using Bayesian Knowledge Tracing."""
 
     # prior knowledge state of the user
     p_L = player["stats"]["knowledge_state"] / 100.0  
@@ -203,6 +205,7 @@ def calculate_BKT(player: dict, gamestate: dict,
     return player
 
 def save_player_progress(player_stats: dict, game_state: dict) -> None:
+    """Saves the player's progress to the json file by name."""
     # increase games played
     player_stats["stats"]["games_played"] += 1
 
@@ -219,7 +222,12 @@ def save_player_progress(player_stats: dict, game_state: dict) -> None:
     save_dict(players_dict)
 
 def game_setup(session):
-    """setting up the wow game before we enter the gameplay loop"""
+    """setting up the wow game before we enter the gameplay loop
+    Steps:
+    1. Ask if the user wants to play a game
+    2. Get the user's information
+    3. Ask the user what role they would like to play and prompt gemini accordingly
+    """
 
     # Asks if the user wants to play a game
     yield asking_user_play_game(session)
@@ -236,6 +244,8 @@ def game_setup(session):
 
 @inlineCallbacks
 def game_loop(session, game_state):
+    """This is a function that covers the main game, which is the questions and answers
+    that are asked back and forth"""
     while True:
         # get the spoken words of the user in an array
         word_array = yield STT_continuous(session)
