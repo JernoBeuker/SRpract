@@ -9,8 +9,11 @@ The next step is to make a virtual environment with all the libraries listed in 
 To make a virtual environment using venv, run the following command: 'python -m venv PATH_TO_VENV python=PYTHON_VERSION(optional)'. PATH_TO_VENV and PYTHON_VERSION are placeholders and should be changed (or left out in case of the python version as it is an optional argument).
 To put the requirements in the virtual environment, run the following code: 'pip install -r requirements.txt'
 
+## Switching to the Final_Project branch
+Switch to the branch final_project (type in: 'git checkout final_project')
+
 ## Filling in the global variables
 For the program to run, it is imperative to make a .env file with the following global variables: 'KEY' and 'REALM'. The realm variable makes the realm that connects the program to the robot. The key is an access key to the Gemini API, which is needed for the robot to engage in conversation.
 
 ## Runing the code
-To run the code for the final project, go to the main folder 'Final_Project', switch to the branch final_project (type in: 'git checkout final_project'), go to the final project folder (cd Final_Project), and type in the command: 'python3 main.py'
+To run the code for the final project, go to the main folder 'Final_Project', go to the final project folder (cd Final_Project), and type in the command: 'python3 main.py'
